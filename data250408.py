@@ -14,9 +14,9 @@ from sklearn.preprocessing import StandardScaler
 import os
 import base64
 
-# 设置中文字体
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'KaiTi']  # 添加更多中文字体选项
-plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+# 移除中文字体设置，使用默认字体
+# plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'KaiTi']
+# plt.rcParams['axes.unicode_minus'] = False
 
 # 设置页面
 st.set_page_config(
@@ -362,8 +362,9 @@ if df is not None and len(df) > 0:
     pca = PCA(n_components=2)
     components = pca.fit_transform(numeric_df)
 
-    fig2, ax2 = plt.subplots(figsize=(10, 8))
-    scatter = ax2.scatter(components[:, 0], components[:, 1], 
+    # 创建新的图形，使用默认字体
+    plt.figure(figsize=(10, 8))
+    scatter = plt.scatter(components[:, 0], components[:, 1], 
                          c=df['增长率'], cmap='viridis', alpha=0.7)
     plt.colorbar(scatter, label='Growth Rate (%)')
 
@@ -377,14 +378,17 @@ if df is not None and len(df) > 0:
     # 使用英文标签
     for stage in df['发展阶段'].unique():
         mask = df['发展阶段'] == stage
-        ax2.scatter(components[mask, 0], components[mask, 1], 
+        plt.scatter(components[mask, 0], components[mask, 1], 
                    label=stage_mapping.get(stage, stage), alpha=0.7)
 
-    ax2.set_xlabel(f"First Principal Component (Explained Variance: {pca.explained_variance_ratio_[0]*100:.2f}%)", fontsize=10)
-    ax2.set_ylabel(f"Second Principal Component (Explained Variance: {pca.explained_variance_ratio_[1]*100:.2f}%)", fontsize=10)
-    ax2.set_title("PCA Results and Development Stage Distribution", fontsize=12)
-    ax2.legend(fontsize=10)
-    st.pyplot(fig2)
+    plt.xlabel(f"First Principal Component (Explained Variance: {pca.explained_variance_ratio_[0]*100:.2f}%)", fontsize=10)
+    plt.ylabel(f"Second Principal Component (Explained Variance: {pca.explained_variance_ratio_[1]*100:.2f}%)", fontsize=10)
+    plt.title("PCA Results and Development Stage Distribution", fontsize=12)
+    plt.legend(fontsize=10)
+    
+    # 使用st.pyplot显示图形
+    st.pyplot(plt.gcf())
+    plt.close()  # 关闭图形，释放内存
 
     # 添加阶段分析总结
     st.subheader("📋 阶段分析总结")
@@ -404,7 +408,3 @@ if df is not None and len(df) > 0:
        - 市场表现较为理性
        - 投资风险相对较低
     """)
-
-    # 查看系统中已安装的中文字体
-    fonts = [f.name for f in matplotlib.font_manager.fontManager.ttflist if 'SimHei' in f.name or 'YaHei' in f.name or 'KaiTi' in f.name]
-    print(fonts)
